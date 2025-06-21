@@ -89,7 +89,7 @@ minikube status        # displays the status of the Minikube cluster (running, p
 minikube profile list  # lists all Minikube profiles available on the machine
 minikube drivers       # lists the container drivers (like docker, virtualbox) supported by Minikube
 ```
-**minikube drivers** shows where Minikube can run the Kubernetes cluster—inside Docker, a VM, or bare metal—depending on the installed and compatible drivers.
+**minikube drivers** shows where Minikube can run the Kubernetes cluster whether inside Docker, a VM, or bare metal, depending on the installed and compatible drivers.
 
 ### 🔗 Confirm Tool Versions
 
