@@ -251,6 +251,15 @@ minikube version          # shows the version of Minikube installed
 helm version              # displays Helm version and client details
 kubectl version --client  # outputs the client version of kubectl installed
 ```
+## 🔗 Common kubectl Commands Used
+
+* `kubectl get nodes` — Displays active nodes
+* `kubectl get pods` — Lists all running pods
+* `kubectl get services` — Displays service mappings
+* `kubectl describe pod <pod-name>` — Shows pod details
+* `kubectl logs <pod-name>` — Retrieves container logs
+* `kubectl apply -f file.yaml` — Applies Kubernetes configuration
+* `kubectl delete -f file.yaml` — Removes resources defined in YAML
 ---
 
 ## 🔗 Step 1: Start Minikube (Kubernetes Cluster Creation)
@@ -307,17 +316,6 @@ Verification:
 ```bash
 helm version
 ```
-
-## 🔗 Common kubectl Commands Used
-
-* `kubectl get nodes` — Displays active nodes
-* `kubectl get pods` — Lists all running pods
-* `kubectl get services` — Displays service mappings
-* `kubectl describe pod <pod-name>` — Shows pod details
-* `kubectl logs <pod-name>` — Retrieves container logs
-* `kubectl apply -f file.yaml` — Applies Kubernetes configuration
-* `kubectl delete -f file.yaml` — Removes resources defined in YAML
-
 ---
 
 ### 🔗What are `helm create` and `helm install`
