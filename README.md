@@ -281,6 +281,33 @@ Essential when managing access to services like Prometheus, Grafana or Flask app
 
 ---
 
+### 🔗 Helm Installation Steps (Snap Method)
+
+When trying to install Helm using Snap, the following message appeared:
+
+```bash
+sudo snap install helm
+
+```
+
+To proceed, Helm was successfully installed using:
+
+```bash
+sudo snap install helm --classic
+```
+
+Output:
+
+```
+helm 3.18.3 from Snapcrafters✪ installed
+```
+
+Verification:
+
+```bash
+helm version
+```
+
 ## 🔗 Common kubectl Commands Used
 
 * `kubectl get nodes` — Displays active nodes
@@ -292,6 +319,51 @@ Essential when managing access to services like Prometheus, Grafana or Flask app
 * `kubectl delete -f file.yaml` — Removes resources defined in YAML
 
 ---
+
+### 🔗What are `helm create` and `helm install`
+
+#### 🔗 `helm create <chart-name>` 
+
+This command **generates a boilerplate Helm chart directory structure** with default files and templates. It is used to scaffold a new chart that can later be customized and deployed.
+
+**Example:**
+
+```bash
+helm create charts/flask-app
+```
+
+This creates a directory structure like:
+
+```
+charts/flask-app/
+├── Chart.yaml
+├── values.yaml
+└── templates/
+    ├── deployment.yaml
+    ├── service.yaml
+    └── _helpers.tpl
+```
+
+The files can then be modified (Docker image name, ports, replicas) to fit the application.
+
+#### 🔗 `helm install <release-name> <chart-path>` 
+
+This command **installs (deploys) a Helm chart** to a Kubernetes cluster.
+
+**Example:**
+
+```bash
+helm install flask charts/flask-app
+```
+
+This installs the `flask-app` Helm chart from the given path with the release name `flask` into the current Kubernetes context.
+
+**Key difference:**
+
+* `helm create` is for chart creation (scaffolding templates).
+* `helm install` is for deploying a chart to a live cluster.
+
+Together, these commands form the build → deploy cycle using Helm.
 
 ## 🔗 Step 2: Helm Chart Packaging for Flask App
 
