@@ -80,22 +80,25 @@ sudo apt update
 sudo apt install -y kubectl
 ```
 
-Check cluster status and driver:
+### 🔗 Check Cluster Status and Drivers
+
+The following commands helped verify the current state and configuration of Minikube:
 
 ```bash
-minikube status
-minikube profile list
-minikube drivers
+minikube status        # displays the status of the Minikube cluster (running, paused, stopped)
+minikube profile list  # lists all Minikube profiles available on the machine
+minikube drivers       # lists the container drivers (like docker, virtualbox) supported by Minikube
 ```
 
-Confirm versions:
+### 🔗 Confirm Tool Versions
+
+These commands were used to verify that the installed versions of tools are available and functioning as expected:
 
 ```bash
-minikube version
-helm version
-kubectl version --client
+minikube version          # shows the version of Minikube installed
+helm version              # displays Helm version and client details
+kubectl version --client  # outputs the client version of kubectl installed
 ```
-
 ---
 
 ## 🔗 Step 1: Start Minikube (Kubernetes Cluster Creation)
