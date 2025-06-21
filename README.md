@@ -116,6 +116,17 @@ Optionally, ingress addon was enabled:
 ```bash
 minikube addons enable ingress
 ```
+This command enables the NGINX Ingress Controller inside the Minikube cluster.
+
+### 🔗 Why it's important:
+
+Allows exposing multiple Kubernetes services under a single external IP or domain.
+
+Enables clean routing rules via URLs (/api, /dashboard).
+
+Supports TLS termination for HTTPS routes.
+
+Essential when managing access to services like Prometheus, Grafana or Flask apps from outside the cluster.
 
 ---
 
