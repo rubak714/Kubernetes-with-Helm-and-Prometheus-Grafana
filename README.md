@@ -118,7 +118,7 @@ minikube addons enable ingress
 ```
 This command enables the NGINX Ingress Controller inside the Minikube cluster.
 
-### 🔗 Why it's important:
+##### 🔗 Why it's important:
 
 Allows exposing multiple Kubernetes services under a single external IP or domain.
 
