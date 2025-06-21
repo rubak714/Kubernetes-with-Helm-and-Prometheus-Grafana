@@ -34,6 +34,157 @@ devops_project_03_helm/
 ├── README.md
 ```
 
+## 🔗 Project Code Files (Flask App, Helm Chart, Monitoring YAMLs)
+
+### `flask-app/app.py`
+
+```python
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Hello from Flask inside Kubernetes!"
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+```
+
+---
+
+### `flask-app/Dockerfile`
+
+```Dockerfile
+FROM python:3.9-slim
+
+WORKDIR /app
+COPY . /app
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+CMD ["python", "app.py"]
+```
+
+---
+
+### `flask-app/requirements.txt`
+
+```
+flask
+```
+
+---
+
+### `charts/flask-app/Chart.yaml`
+
+```yaml
+apiVersion: v2
+name: flask-app
+description: A simple Flask app deployed via Helm
+type: application
+version: 0.1.0
+appVersion: "1.0"
+```
+
+---
+
+### `charts/flask-app/values.yaml`
+
+```yaml
+replicaCount: 1
+
+image:
+  repository: your-dockerhub-username/flask-app
+  pullPolicy: IfNotPresent
+  tag: latest
+
+service:
+  type: NodePort
+  port: 5000
+
+resources: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+```
+
+---
+
+### `charts/flask-app/templates/deployment.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "flask-app.fullname" . }}
+  labels:
+    {{- include "flask-app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: flask
+  template:
+    metadata:
+      labels:
+        app: flask
+    spec:
+      containers:
+        - name: flask
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 5000
+```
+
+---
+
+### `charts/flask-app/templates/service.yaml`
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-service
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: flask
+  ports:
+    - protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: 5000
+```
+
+---
+
+### `prometheus-grafana/prometheus.yaml`
+
+```yaml
+alertmanager:
+  enabled: false
+
+pushgateway:
+  enabled: false
+
+server:
+  service:
+    type: NodePort
+    nodePort: 30090
+```
+
+---
+
+### `prometheus-grafana/grafana.yaml`
+
+```yaml
+adminPassword: admin
+service:
+  type: NodePort
+  nodePort: 30030
+```
+
+
 ## 🔗 Deployment Architecture Followed
 
 <p align="center">
