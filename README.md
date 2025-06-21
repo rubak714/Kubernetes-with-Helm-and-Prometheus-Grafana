@@ -87,7 +87,6 @@ The following commands helped verify the current state and configuration of Mini
 ```bash
 minikube status        # displays the status of the Minikube cluster (running, paused, stopped)
 minikube profile list  # lists all Minikube profiles available on the machine
-minikube drivers       # lists the container drivers (like docker, virtualbox) supported by Minikube
 ```
 **minikube drivers** shows where Minikube can run the Kubernetes cluster whether inside Docker, a VM, or bare metal, depending on the installed and compatible drivers.
 > `minikube drivers` was previously used in older versions to list supported container drivers, but the command has since been deprecated or removed in the latest versions. Refer to the Minikube documentation for updated ways to check available drivers.
