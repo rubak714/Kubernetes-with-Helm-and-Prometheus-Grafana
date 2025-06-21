@@ -1,4 +1,4 @@
-# 🔗 DevOps\_Project\_03: Kubernetes Deployment with Helm Charts + Monitoring
+# 🔗 DevOps Project 03: Kubernetes Deployment with Helm Charts + Monitoring
 
 This guide documents the steps followed to create a **DevOps project** focused on deploying a Flask or Nginx application into **Kubernetes** using **Minikube**, along with monitoring setup via **Prometheus + Grafana**. The application was also packaged using **Helm charts** to simplify deployment and configuration.
 
