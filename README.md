@@ -107,19 +107,6 @@ kubectl version --client  # outputs the client version of kubectl installed
 ```bash
 minikube start --driver=docker
 ```
-
-This command initializes the Kubernetes control plane and provisions a single-node cluster using Docker as the driver.
-
-
-
----
-
-## 🔗 Step 1: Start Minikube (Kubernetes Cluster Creation)
-
-```bash
-minikube start --driver=docker
-```
-
 This command initializes the Kubernetes control plane and provisions a single-node cluster using Docker as the driver.
 
 > This command can be run from any directory ( home or project folder). However, running it inside the project directory can help keep context and workflows organized.
