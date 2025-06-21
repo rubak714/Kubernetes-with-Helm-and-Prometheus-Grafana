@@ -158,7 +158,7 @@ spec:
 
 ---
 
-### `prometheus-grafana/prometheus.yaml`
+### `prometheus-grafana/prometheus-values.yaml`
 
 ```yaml
 alertmanager:
@@ -175,7 +175,7 @@ server:
 
 ---
 
-### `prometheus-grafana/grafana.yaml`
+### `prometheus-grafana/grafana-values.yaml`
 
 ```yaml
 adminPassword: admin
@@ -441,19 +441,103 @@ helm install prometheus prometheus-community/prometheus
 helm install grafana grafana/grafana --set adminPassword='admin' --set service.type=NodePort
 ```
 
-Credentials were retrieved:
+## 🔗 Updated Monitoring Setup with Custom Values
+
+To enable customization and maintainability, default values were extracted into custom Helm values files:
+
+Prometheus:
+- File created: `prometheus-grafana/prometheus-values.yaml`
+
+```yaml
+alertmanager:
+  enabled: false
+
+pushgateway:
+  enabled: false
+
+server:
+  service:
+    type: NodePort
+    nodePort: 30090
+```
+
+Grafana:
+- File created: `prometheus-grafana/grafana-values.yaml`
+
+```yaml
+adminPassword: admin
+
+service:
+  type: NodePort
+  nodePort: 30030
+```
+
+These custom files were used with Helm upgrade:
+
+```bash
+helm upgrade --install prometheus prometheus-community/prometheus -f prometheus-grafana/prometheus-values.yaml
+helm upgrade --install grafana grafana/grafana -f prometheus-grafana/grafana-values.yaml
+```
+
+Old Kubernetes YAMLs (`prometheus.yaml`, `grafana.yaml`) were removed to avoid duplication and confusion.
+
+---
+
+## 🔗 Verifying with kubectl
+
+After deployment, verification was done using `kubectl`:
+
+```bash
+kubectl get pods       # List all pods and their status
+kubectl get services   # Check service exposure, especially NodePorts
+kubectl get all        # View deployments, replicasets, services and pods together
+```
+
+To retrieve Grafana credentials:
 
 ```bash
 kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 ```
 
-Grafana UI was accessed:
+To access Grafana UI:
 
 ```bash
 minikube service grafana
 ```
 
-Prometheus was added as a data source in Grafana to enable dashboard creation.
+Inside Grafana:
+- Prometheus was added as a data source to enable dashboard creation.
+
+## 🔗 Step 5: Importing Community Dashboards in Grafana
+
+To import popular and ready-made dashboards into Grafana:
+
+1. **Go to the Grafana UI**
+   - Open in browser using:
+     ```bash
+     minikube service grafana
+     ```
+
+2. **Login** using the credentials:
+   - **Username**: `admin`
+   - **Password**: `admin` *(or the one user configured)*
+
+3. **From the left sidebar**, click on **+ (Create)** → **Import**.
+
+4. **Enter Dashboard ID**
+   - For example, used one of the following:
+     - `1860` — Kubernetes Cluster Monitoring
+     - `3662` — Node Exporter Full
+
+5. **Click "Load"**.
+
+6. **Set Prometheus as the data source** from the dropdown.
+   - If not already configured, set:
+     - **URL**: `http://prometheus-server.default.svc.cluster.local`
+
+7. **Click "Import"**.
+
+Now should now see beautiful dashboards visualizing metrics from user's Kubernetes pods, nodes, services and more.
 
 ---
 
@@ -466,7 +550,7 @@ The following milestones were completed:
 * The app was deployed on Kubernetes via Helm
 * Monitoring was added through Prometheus and Grafana
 
-# Debugging and More Helpful Commands:
+# Debugging and More Helpful Commands and Discussions:
 ### 🔗 Resolving Helm Chart Installation Error
 
 The following error was encountered when attempting to install the Flask Helm chart:
@@ -596,6 +680,157 @@ replicaset.apps/flask-flask-app-8d8cd4757   1         1         0       43s
   ```
 
 These commands will reveal whether the image was pulled successfully or if there were errors ( authentication, image not found, or DockerHub access issues).
+
+## 🔗 Another Option for Step 4 : Apply Raw YAMLs Using kubectl
+
+If Helm is not preferred or unavailable, Prometheus and Grafana can also be deployed using plain Kubernetes YAML manifests.
+
+This is a manual approach, best used for basic testing or where Helm isn’t suitable.
+
+Ensure the files under `prometheus-grafana/` ( `prometheus.yaml` and `grafana.yaml`) are valid Kubernetes manifests containing fields like `apiVersion`, `kind`, `metadata`, `spec`, etc.
+
+Apply them using the following commands:
+
+```bash
+kubectl apply -f prometheus-grafana/prometheus.yaml
+kubectl apply -f prometheus-grafana/grafana.yaml
+```
+
+### 🔗 Notes:
+- This approach does not support Helm’s versioning, values overrides, or rollbacks.
+- Recommended only for quick tests or custom hand-crafted YAMLs.
+- Make sure ports and service types are properly configured (e.g., `NodePort`, `ClusterIP`).
+
+> For better reusability and lifecycle management, the Helm-based installation remains the recommended approach.
+
+## 🔗 Grafana Access Credentials
+
+When deploying Grafana via Helm, the default admin username is typically `admin`. The password can be set manually using the `--set adminPassword='...'` flag or via a `values.yaml` file.
+
+In this setup, both username and password were set to:
+
+* **Username**: `admin`
+* **Password**: `admin`
+
+This is fine for local development and testing, especially when accessing through:
+
+```bash
+minikube service grafana
+```
+
+🔗 **Note**: For production deployments, always use a strong password and secure access with authentication, TLS, and proper role-based access controls.
+
+---
+
+## 🔗 Grafana Dashboards (Manual and Automated Import)
+
+### 🔗 Option 1: Manual Import from Grafana Dashboard IDs
+
+1. Launch Grafana in the browser:
+
+   ```bash
+   minikube service grafana
+   ```
+2. Login with the default credentials:
+
+   * Username: `admin`
+   * Password: `admin`
+3. From the left menu, click **+ → Import**
+4. Enter a Dashboard ID and click **Load**:
+
+| Dashboard ID | Description                                             |
+| ------------ | ------------------------------------------------------- |
+| `11074`      | Flask App metrics via `prometheus_flask_exporter`       |
+| `1860`       | Kubernetes cluster metrics (Prometheus + Node Exporter) |
+| `3662`       | Full Node Exporter system metrics                       |
+
+5. Choose **Prometheus** as the data source → Click **Import**
+
+---
+
+### 🔗 Option 2: Automatically Provision Dashboards via Kubernetes
+
+This approach provisions dashboards on Grafana startup via Helm + ConfigMaps.
+
+#### 🔗 Step 1: Download the JSON Dashboard
+
+Create a folder:
+
+```bash
+mkdir -p prometheus-grafana/dashboards
+```
+
+Download dashboard JSON:
+
+```bash
+wget https://grafana.com/api/dashboards/11074/revisions/1/download -O prometheus-grafana/dashboards/flask_dashboard.json
+```
+
+---
+
+#### 🔗 Step 2: Create a ConfigMap for the Dashboard
+
+Create `prometheus-grafana/grafana-dashboard-config.yaml`:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  labels:
+    grafana_dashboard: "1"
+data:
+  flask_dashboard.json: |
+    { Paste the raw contents of flask_dashboard.json here }
+```
+
+---
+
+#### 🔗 Step 3: Update grafana-values.yaml to Load Dashboard
+
+Update or create `grafana-values.yaml`:
+
+```yaml
+adminPassword: admin
+
+service:
+  type: NodePort
+  nodePort: 30030
+
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    labelValue: "1"
+    folder: /var/lib/grafana/dashboards
+
+dashboardsConfigMaps:
+  default: grafana-dashboards
+```
+
+---
+
+#### 🔗 Step 4: Apply Changes Using Helm Upgrade
+
+```bash
+helm upgrade grafana grafana/grafana -f prometheus-grafana/grafana-values.yaml
+```
+
+---
+
+## 🔗 Optional: Raw Kubernetes YAMLs via kubectl (No Helm)
+
+If using `prometheus.yaml` and `grafana.yaml` files manually instead of Helm charts, apply them like so:
+
+```bash
+kubectl apply -f prometheus-grafana/prometheus.yaml
+kubectl apply -f prometheus-grafana/grafana.yaml
+```
+
+This is valid when files contain raw Kubernetes manifests ( `apiVersion`, `kind`, `metadata`).
+
+Helm remains the preferred method for production or repeatable setups.
+
 
 ---
 
